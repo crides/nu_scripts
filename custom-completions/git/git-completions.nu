@@ -13,7 +13,7 @@ def "nu-complete git log" [] {
 
 # Yield all existing commits in descending chronological order.
 def "nu-complete git commits all" [] {
-  ^git rev-list --all --remotes --pretty=oneline | lines | parse "{value} {description}"
+  ^git rev-list --all --remotes --pretty=oneline --abbrev-commit | lines | parse "{value} {description}"
 }
 
 # Yield commits of current branch only. This is useful for e.g. cut points in
@@ -260,6 +260,8 @@ export extern "git pull" [
   remote?: string@"nu-complete git remotes",         # the name of the remote
   ...refs: string@"nu-complete git local branches"   # the branch / refspec
   --rebase                                           # rebase current branch on top of upstream after fetching
+  --autostash                                        # automatically stash/stash pop before and after
+  --set-upstream(-u)                                 # set upstream for git pull/status
 ]
 
 # Switch between branches and commits
@@ -368,9 +370,11 @@ export extern "git diff" [
   rev1_or_file?: string@"nu-complete git files-or-refs"
   rev2?: string@"nu-complete git refs"
   --cached                                             # show staged changes
+  --staged                                             # show staged changes
   --name-only                                          # only show names of changed files
   --name-status                                        # show changed files and kind of change
   --no-color                                           # disable color output
+  --stat                                               # generate a diffstat
 ]
 
 # Commit changes
@@ -387,6 +391,9 @@ export extern "git log" [
   -U                                                  # show diffs
   --follow                                            # show history beyond renames (single file only)
   --grep: string                                      # show log entries matching supplied regular expression
+  --stat                                              # generate a diffstat
+  -S: string                                          # Look for differences that change the number of occurrences of the specified string (i.e. addition/deletion) in a file.
+  -G: string                                          # Look for differences whose patch text contains added/removed lines that match <regex>
 ]
 
 # Show or change the reflog
@@ -490,4 +497,21 @@ export extern "git bisect reset" [
 # Show help for a git subcommand
 export extern "git help" [
   command: string@"nu-complete git subcommands"       # subcommand to show help for
+]
+
+export extern "git reset" [
+  --quiet (-q)                                  # be quiet, only report errors
+  --no-refresh                                  # skip refreshing the index after reset
+  --refresh                                     # opposite of --no-refresh
+  --mixed                                       # reset HEAD and index
+  --soft                                        # reset only HEAD
+  --hard                                        # reset HEAD, index and working tree
+  --merge                                       # reset HEAD, index and working tree
+  --keep                                        # reset HEAD but keep local changes
+  --patch (-p)                                  # select hunks interactively
+  ...targets: string@"nu-complete git checkout" # name of the branch or files to reset
+]
+
+export extern "git show" [
+  --stat                                        # generate a diffstat
 ]
